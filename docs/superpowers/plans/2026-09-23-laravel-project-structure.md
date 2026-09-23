@@ -15,7 +15,7 @@
 - Create only `backend/`; do not create the frontend application until its designated prompt.
 - Do not add Docker, email verification, refresh tokens, optional packages, domain modules, database migrations, or API endpoints.
 - Laravel must be installed as version 12 and use its standard application structure.
-- Configure only `.env.example`; never create or commit credentials or a real `.env` file.
+- Configure `.env.example`; never commit credentials or a real `.env` file.
 - The intended production database driver is MySQL; a live database is not required for Prompt 1.
 
 ## Review Focus
