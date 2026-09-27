@@ -20,4 +20,10 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::apiResource('course-offerings', CourseOfferingController::class);
     Route::apiResource('enrollments', EnrollmentController::class);
     Route::apiResource('grades', GradeController::class)->except('destroy');
+    Route::get('students/{student}/academic-record', function (\App\Models\Student $student, \Illuminate\Http\Request $request) {
+        $user = $request->user();
+        if ($user->role?->name === 'Student' && $student->user_id !== $user->id) abort(403);
+        $records = \App\Models\Enrollment::with(['courseOffering.course','courseOffering.academicTerm','grade'])->where('student_id', $student->id)->get();
+        return response()->json(['success'=>true,'data'=>['student'=>$student,'records'=>$records]]);
+    });
 });
