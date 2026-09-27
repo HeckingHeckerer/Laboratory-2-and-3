@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException || $exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) return response()->json(['success' => false, 'message' => 'Resource not found.'], 404);
             if ($exception instanceof \Illuminate\Auth\AuthenticationException) return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
             if ($exception instanceof \Illuminate\Auth\Access\AuthorizationException) return response()->json(['success' => false, 'message' => 'Forbidden.'], 403);
+            if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface && $exception->getStatusCode() === 403) return response()->json(['success' => false, 'message' => 'Forbidden.'], 403);
             return null;
         });
     })->create();
