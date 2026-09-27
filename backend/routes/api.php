@@ -12,6 +12,17 @@ Route::prefix('v1/auth')->group(function () {
     });
 });
 
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+    Route::get('my/course-offerings', function (\Illuminate\Http\Request $request) {
+        abort_unless($request->user()->role?->name === 'Instructor', 403);
+        return response()->json(['success'=>true,'data'=>\App\Models\CourseOffering::where('instructor_id',$request->user()->id)->paginate(20)]);
+    });
+    Route::get('my/student', function (\Illuminate\Http\Request $request) {
+        abort_unless($request->user()->role?->name === 'Student', 403);
+        return response()->json(['success'=>true,'data'=>\App\Models\Student::where('user_id',$request->user()->id)->firstOrFail()]);
+    });
+});
+
 Route::middleware(['auth:sanctum','role:Admin,Staff'])->prefix('v1')->group(function () {
     Route::apiResource('students', StudentController::class);
     Route::apiResource('programs', ProgramController::class);
