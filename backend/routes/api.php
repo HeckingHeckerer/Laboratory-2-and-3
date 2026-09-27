@@ -12,7 +12,7 @@ Route::prefix('v1/auth')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+Route::middleware(['auth:sanctum','role:Admin,Staff'])->prefix('v1')->group(function () {
     Route::apiResource('students', StudentController::class);
     Route::apiResource('programs', ProgramController::class);
     Route::apiResource('courses', CourseController::class);
