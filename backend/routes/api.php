@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\{StudentController, ProgramController, CourseController, AcademicTermController, CourseOfferingController, EnrollmentController, GradeController};
+use App\Http\Controllers\Api\V1\{StudentController, ProgramController, CourseController, AcademicTermController, CourseOfferingController, EnrollmentController, GradeController, InstructorEnrollmentController};
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/auth')->group(function () {
@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'role:Instructor'])->prefix('v1/my')->group(function () {
+    Route::get('teaching-enrollments', [InstructorEnrollmentController::class, 'index']);
     Route::post('grades', function (\Illuminate\Http\Request $request) {
         $data = $request->validate([
             'enrollment_id' => ['required', 'exists:enrollments,id'],

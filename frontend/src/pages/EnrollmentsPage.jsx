@@ -1,0 +1,6 @@
+import { useEffect, useState } from 'react'
+import { ReferenceDataPage } from '../components/ReferenceDataPage.jsx'
+import service from '../services/enrollmentService.js'
+import studentService from '../services/studentService.js'
+import offeringService from '../services/courseOfferingService.js'
+export function EnrollmentsPage(){const [students,setStudents]=useState([]),[offerings,setOfferings]=useState([]);useEffect(()=>{studentService.list({per_page:100}).then(x=>setStudents(x.data??[]));offeringService.list().then(x=>setOfferings(x.data??[]))},[]);const fields=[{name:'student_id',label:'Student',type:'select',options:students.map(x=>String(x.id)),required:true},{name:'course_offering_id',label:'Course offering',type:'select',options:offerings.map(x=>String(x.id)),required:true},{name:'enrollment_date',label:'Enrollment date',type:'date',required:true},{name:'status',label:'Status',type:'select',options:['Enrolled','Dropped','Completed'],default:'Enrolled',required:true}];return <ReferenceDataPage title="Enrollments" service={service} fields={fields} columns={[{name:'student_id',label:'Student ID'},{name:'course_offering_id',label:'Offering ID'},{name:'enrollment_date',label:'Date'},{name:'status',label:'Status'}]}/>}
