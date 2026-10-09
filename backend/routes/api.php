@@ -67,6 +67,9 @@ Route::middleware(['auth:sanctum', 'role:Instructor'])->prefix('v1/my')->group(f
 });
 
 Route::middleware(['auth:sanctum','role:Admin,Staff'])->prefix('v1')->group(function () {
+    Route::get('instructors', function () {
+        return response()->json(['success'=>true,'data'=>\App\Models\User::whereHas('role', fn ($query) => $query->where('name', 'Instructor'))->where('status', 'Active')->orderBy('name')->get(['id','name','email','role_id'])]);
+    });
     Route::apiResource('students', StudentController::class);
     Route::apiResource('programs', ProgramController::class);
     Route::apiResource('courses', CourseController::class);

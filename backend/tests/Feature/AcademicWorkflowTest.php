@@ -28,6 +28,33 @@ class AcademicWorkflowTest extends TestCase
             ->assertCreated()->assertJsonPath('data.student_id', $student->id)->assertJsonPath('data.course_offering_id', $offering->id);
     }
 
+    public function test_enrollment_search_matches_enrollment_student_and_related_course_fields(): void
+    {
+        [$student, $offering] = $this->studentAndOffering();
+        $student->update(['student_number' => '2023301556', 'first_name' => 'KAYEL', 'last_name' => 'KAYEL']);
+        $enrollment = Enrollment::create($this->enrollmentPayload($student, $offering));
+        Sanctum::actingAs($this->user('Admin'));
+
+        foreach ([$student->id, '2023301556', 'KAYEL', $enrollment->id] as $term) {
+            $this->getJson('/api/v1/enrollments?search='.$term)
+                ->assertOk()->assertJsonPath('data.total', 1)->assertJsonPath('data.data.0.id', $enrollment->id);
+        }
+        $this->getJson('/api/v1/enrollments?search=does-not-exist')->assertOk()->assertJsonPath('data.total', 0);
+    }
+
+    public function test_ungraded_enrollment_filter_excludes_existing_grades(): void
+    {
+        [$student, $offering] = $this->studentAndOffering();
+        $ungraded = Enrollment::create($this->enrollmentPayload($student, $offering));
+        [$gradedStudent, $gradedOffering] = $this->studentAndOffering();
+        $graded = Enrollment::create($this->enrollmentPayload($gradedStudent, $gradedOffering));
+        Grade::create(['enrollment_id' => $graded->id, 'grade' => 90]);
+        Sanctum::actingAs($this->user('Admin'));
+
+        $this->getJson('/api/v1/enrollments?without_grade=1')
+            ->assertOk()->assertJsonPath('data.total', 1)->assertJsonPath('data.data.0.id', $ungraded->id);
+    }
+
     public function test_enrollment_rejects_an_invalid_student_reference(): void
     {
         [, $offering] = $this->studentAndOffering();
