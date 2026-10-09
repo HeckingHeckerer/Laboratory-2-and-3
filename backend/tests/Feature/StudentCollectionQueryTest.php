@@ -29,6 +29,25 @@ class StudentCollectionQueryTest extends TestCase
             ->assertOk()->assertJsonPath('data.total', 1)->assertJsonPath('data.data.0.id', $match->id);
     }
 
+    public function test_empty_filter_parameters_do_not_filter_out_students(): void
+    {
+        $this->student(['student_number' => 'EMPTY-FILTER-1']);
+        $this->student(['student_number' => 'EMPTY-FILTER-2']);
+
+        $this->getJson('/api/v1/students?search=&program_id=&year_level=&status=&sort=last_name&direction=asc')
+            ->assertOk()->assertJsonPath('data.total', 2);
+    }
+
+    public function test_non_empty_filters_remain_applied(): void
+    {
+        $program = $this->program('FILTER-PROGRAM');
+        $match = $this->student(['program_id' => $program->id, 'year_level' => 3, 'status' => 'Regular']);
+        $this->student(['program_id' => $program->id, 'year_level' => 2, 'status' => 'Regular']);
+
+        $this->getJson("/api/v1/students?program_id={$program->id}&year_level=3&status=Regular")
+            ->assertOk()->assertJsonPath('data.total', 1)->assertJsonPath('data.data.0.id', $match->id);
+    }
+
     public function test_students_can_be_filtered_and_combined(): void
     {
         $it = $this->program('BSIT');

@@ -35,7 +35,7 @@ class StudentController extends CrudController
             });
         }
         foreach (['program_id', 'year_level', 'status'] as $filter) {
-            if (array_key_exists($filter, $queryData)) $query->where($filter, $queryData[$filter]);
+            if (isset($queryData[$filter]) && $queryData[$filter] !== '') $query->where($filter, $queryData[$filter]);
         }
 
         $query->orderBy($queryData['sort'] ?? 'id', $queryData['direction'] ?? 'asc');

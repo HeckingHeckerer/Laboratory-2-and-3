@@ -54,6 +54,16 @@ class AcademicWorkflowTest extends TestCase
             ->assertConflict()->assertExactJson(['success' => false, 'message' => 'Duplicate or conflicting record.']);
     }
 
+    public function test_referenced_course_delete_returns_a_safe_conflict(): void
+    {
+        [, $offering] = $this->studentAndOffering();
+        Sanctum::actingAs($this->user('Admin'));
+
+        $this->deleteJson('/api/v1/courses/'.$offering->course_id)
+            ->assertConflict()
+            ->assertExactJson(['success' => false, 'message' => 'This record cannot be deleted because it is still in use.']);
+    }
+
     public function test_instructor_can_submit_and_update_a_grade_for_an_assigned_offering(): void
     {
         $instructor = $this->user('Instructor');
